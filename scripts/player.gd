@@ -69,10 +69,10 @@ func attack() -> void:
 	
 	await get_tree().create_timer(attack_speed).timeout
 	state = State.IDLE
-	update_animation()
+	#update_animation()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		attack()
 
 func _physics_process(delta: float) -> void: # default physics
