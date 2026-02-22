@@ -3,6 +3,8 @@ extends CharacterBody2D
 @export_category("Status") # for showing the status bar (no coding input purpose)
 @export var speed: int = 400 # speed of the character
 @export var attack_speed: float = 0.6
+@export var attack_damage: int = 60
+@export var hitpoints: int = 150
 
 # adding animation
 @onready var animation_tree: AnimationTree = $AnimationTree
@@ -78,3 +80,14 @@ func _unhandled_input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void: # default physics
 	if state != State.ATTACK:
 		movement_loop() # appling physics to movement_loop func
+
+func take_damage(damage_taken: int) -> void:
+	hitpoints -= damage_taken
+	if hitpoints <= 0:
+		death()
+
+func death() -> void:
+	print("you died")
+
+func _on_hit_box_area_entered(area: Area2D) -> void:
+	area.owner.take_damage(attack_damage)

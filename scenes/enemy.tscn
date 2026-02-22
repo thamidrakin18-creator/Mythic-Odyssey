@@ -1,7 +1,8 @@
-[gd_scene load_steps=30 format=3 uid="uid://b3vuimhyqshrc"]
+[gd_scene load_steps=31 format=3 uid="uid://d2i46ynldwfkd"]
 
-[ext_resource type="Texture2D" uid="uid://cshokjn15qfxn" path="res://assets/player/Warrior_Blue.png" id="1_3vyb7"]
-[ext_resource type="Script" uid="uid://pj5uv4d1mvqp" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://saqrnrglfwwy" path="res://scripts/enemy.gd" id="1_md0e3"]
+[ext_resource type="Texture2D" uid="uid://cd2p2ui15u8tw" path="res://assets/enemy/Warrior_Red.png" id="2_4ra3w"]
+[ext_resource type="PackedScene" uid="uid://cxl4hrwxs5mg3" path="res://scenes/dead.tscn" id="2_5uy6h"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_yk7k6"]
 radius = 20.0
@@ -19,42 +20,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [0]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("HitBox:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(22, -55)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath("HitBox:rotation")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-tracks/3/type = "value"
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/path = NodePath("HitBox:monitoring")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [false]
 }
 
 [sub_resource type="Animation" id="Animation_g2els"]
@@ -75,7 +40,7 @@ tracks/0/keys = {
 "values": [0, 1, 2, 3, 4, 5]
 }
 
-[sub_resource type="Animation" id="Animation_tuyoq"]
+[sub_resource type="Animation" id="Animation_4ra3w"]
 resource_name = "left_attack"
 length = 0.6
 step = 0.1
@@ -309,7 +274,7 @@ tracks/3/keys = {
 _data = {
 &"RESET": SubResource("Animation_qhqgy"),
 &"idle": SubResource("Animation_g2els"),
-&"left_attack": SubResource("Animation_tuyoq"),
+&"left_attack": SubResource("Animation_4ra3w"),
 &"lower_attack": SubResource("Animation_fjrip"),
 &"right_attack": SubResource("Animation_qlg0r"),
 &"run": SubResource("Animation_dqkch"),
@@ -342,7 +307,7 @@ blend_mode = 1
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_f1ej7"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_oprun"]
-graph_offset = Vector2(59, 106)
+graph_offset = Vector2(14.0149765, 66.50464)
 nodes/output/position = Vector2(746.6667, 106.666664)
 nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_f1ej7")
 nodes/TimeScale/position = Vector2(510.66666, 148.66667)
@@ -380,21 +345,22 @@ states/run/node = SubResource("AnimationNodeAnimation_fjrip")
 states/run/position = Vector2(452, 50)
 transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_smehm"), "idle", "run", SubResource("AnimationNodeStateMachineTransition_ur7pv"), "run", "idle", SubResource("AnimationNodeStateMachineTransition_y4r1p"), "idle", "attack", SubResource("AnimationNodeStateMachineTransition_a8ls1"), "attack", "idle", SubResource("AnimationNodeStateMachineTransition_qfm1y"), "run", "attack", SubResource("AnimationNodeStateMachineTransition_fulsm")]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_g2els"]
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5uy6h"]
 radius = 19.0
 height = 64.0
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_g2els"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5uy6h"]
 size = Vector2(9, 43)
 
-[node name="Player" type="CharacterBody2D" groups=["player"]]
-collision_layer = 3
-collision_mask = 3
-script = ExtResource("1_g2els")
+[node name="Enemy" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_md0e3")
+death_packed = ExtResource("2_5uy6h")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, -32)
-texture = ExtResource("1_3vyb7")
+texture = ExtResource("2_4ra3w")
 hframes = 6
 vframes = 8
 
@@ -411,28 +377,38 @@ libraries = {
 [node name="AnimationTree" type="AnimationTree" parent="."]
 tree_root = SubResource("AnimationNodeStateMachine_d2wvv")
 anim_player = NodePath("../AnimationPlayer")
-parameters/attack/TimeScale/scale = 2.0
+parameters/attack/TimeScale/scale = 1.0
 parameters/attack/BlendSpace2D/blend_position = Vector2(0, 0)
 
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+path_postprocessing = 1
+avoidance_enabled = true
+radius = 48.0
+neighbor_distance = 128.0
+max_speed = 128.0
+debug_enabled = true
+debug_use_custom = true
+debug_path_custom_color = Color(0.7862273, 0.16282648, 0.33512664, 1)
+
 [node name="HurtBox" type="Area2D" parent="."]
-collision_layer = 32
+collision_layer = 16
 collision_mask = 0
 input_pickable = false
 monitoring = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 position = Vector2(0, -32)
-shape = SubResource("CapsuleShape2D_g2els")
+shape = SubResource("CapsuleShape2D_5uy6h")
 
 [node name="HitBox" type="Area2D" parent="."]
-position = Vector2(22, -55)
 collision_layer = 0
-collision_mask = 16
+collision_mask = 32
 monitoring = false
 monitorable = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox"]
 position = Vector2(0, -22)
-shape = SubResource("RectangleShape2D_g2els")
+shape = SubResource("RectangleShape2D_5uy6h")
 
+[connection signal="velocity_computed" from="NavigationAgent2D" to="." method="_on_navigation_agent_2d_velocity_computed"]
 [connection signal="area_entered" from="HitBox" to="." method="_on_hit_box_area_entered"]
